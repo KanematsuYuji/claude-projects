@@ -74,6 +74,7 @@ instance.onResult((result, scores, answers) => {
     {
       "id": "q1",
       "text": "質問文",
+      "image": "",              // 質問画像URL（任意）
       "choices": [
         {
           "id": "q1a",
@@ -89,7 +90,8 @@ instance.onResult((result, scores, answers) => {
       "id": "resultId",
       "title": "結果タイトル",
       "description": "結果の説明文",
-      "image": "",              // 画像URL（任意）
+      "image": "",              // 結果画像URL（任意）
+      "url": "",                // 結果ページURL（設定時は別ページへ遷移）
       "tags": ["タグ1", "タグ2"],
       "range": [1, 5]           // range モードのみ: [最小値, 最大値]
     }
@@ -140,7 +142,9 @@ instance.onResult((result, scores, answers) => {
 | 2択 / 3択 / 4択 | 各質問の `choices` 配列の要素数を変更 |
 | スコア方式を変更 | `settings.scoringMode` を `"highest"` or `"range"` に設定 |
 | 結果パターンを増やす | `results` 配列に追加し、`scores` のキーまたは `range` を合わせる |
+| 質問に画像を表示 | `questions[].image` に画像URLを設定 |
 | 結果に画像を表示 | `results[].image` に画像URLを設定 |
+| 結果を別ページで表示 | `results[].url` にURLを設定（遷移先で結果を表示） |
 | スタイルを変更 | `.dmod-*` プレフィックスのCSSを上書き |
 
 ## デモの実行

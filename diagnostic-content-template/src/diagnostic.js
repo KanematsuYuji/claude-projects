@@ -235,6 +235,14 @@ class DiagnosticModule {
     const qText = this._el('p', 'dmod-question', qNum + q.text);
     wrap.appendChild(qText);
 
+    // Question image
+    if (q.image) {
+      const qImg = this._el('img', 'dmod-question__image');
+      qImg.src = q.image;
+      qImg.alt = q.text;
+      wrap.appendChild(qImg);
+    }
+
     // Choices
     const choiceCount = q.choices.length;
     const styleClass =
@@ -273,6 +281,18 @@ class DiagnosticModule {
     this._clear();
     const result = this._getTopResult();
 
+    // Callback (URL遷移前に実行)
+    if (this._onResultCallback) {
+      this._onResultCallback(result, this.getScores(), this.answers);
+    }
+
+    // result.url が設定されていれば別ページへ遷移
+    if (result.url) {
+      window.location.href = result.url;
+      return;
+    }
+
+    // --- インライン結果表示 ---
     const wrap = this._el('div', 'dmod-wrap');
     const inner = this._el('div', 'dmod-result');
 
@@ -317,11 +337,6 @@ class DiagnosticModule {
     wrap.appendChild(inner);
     this.container.appendChild(wrap);
     this._animate(wrap);
-
-    // Callback
-    if (this._onResultCallback) {
-      this._onResultCallback(result, this.getScores(), this.answers);
-    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -425,6 +440,15 @@ class DiagnosticModule {
 .dmod-qnum {
   color: #4f46e5;
   margin-right: 6px;
+}
+
+/* --- Question image --- */
+.dmod-question__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 0 auto 24px;
 }
 
 /* --- Choices --- */

@@ -16,6 +16,7 @@
     {
       "id": "q1",
       "text": "週末は家にいることが多い",
+      "image": "",
       "choices": [
         { "id": "q1a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
         { "id": "q1b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
@@ -24,6 +25,7 @@
     {
       "id": "q2",
       "text": "ネットショッピングをよく使う",
+      "image": "",
       "choices": [
         { "id": "q2a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
         { "id": "q2b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
@@ -32,6 +34,7 @@
     {
       "id": "q3",
       "text": "アウトドアの趣味がある",
+      "image": "",
       "choices": [
         { "id": "q3a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
         { "id": "q3b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
@@ -40,6 +43,7 @@
     {
       "id": "q4",
       "text": "動画配信サービスに加入している",
+      "image": "",
       "choices": [
         { "id": "q4a", "text": "Yes", "scores": { "indoor": 1, "outdoor": 0 } },
         { "id": "q4b", "text": "No", "scores": { "indoor": 0, "outdoor": 1 } }
@@ -48,6 +52,7 @@
     {
       "id": "q5",
       "text": "旅行の計画を立てるのが好き",
+      "image": "",
       "choices": [
         { "id": "q5a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
         { "id": "q5b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
@@ -60,6 +65,7 @@
       "title": "インドア派",
       "description": "あなたは快適な室内で過ごすことが好きなインドア派です。読書やゲーム、映画鑑賞など、家の中でも充実した時間を過ごせるタイプです。",
       "image": "",
+      "url": "",
       "tags": ["インドア", "家が好き"]
     },
     {
@@ -67,6 +73,7 @@
       "title": "アウトドア派",
       "description": "あなたは外に出て活動するのが好きなアウトドア派です。自然や街を楽しみ、アクティブに過ごすことでエネルギーを得るタイプです。",
       "image": "",
+      "url": "",
       "tags": ["アウトドア", "活動的"]
     }
   ]
