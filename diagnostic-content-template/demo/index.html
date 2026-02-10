@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>診断コンテンツ デモ</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: #f9fafb;
+      color: #333;
+    }
+    .page-header {
+      background: #4f46e5;
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .page-header h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    .page-header p  { font-size: 0.95rem; opacity: 0.85; }
+
+    .demo-section {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .demo-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      border-left: 4px solid #4f46e5;
+      padding-left: 12px;
+    }
+    .demo-section p.note {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    /* 診断コンテナの外枠（任意） */
+    .diagnosis-container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+
+    .switch-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .switch-bar button {
+      padding: 10px 24px;
+      border: 2px solid #4f46e5;
+      border-radius: 30px;
+      background: #fff;
+      color: #4f46e5;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .switch-bar button.active,
+    .switch-bar button:hover {
+      background: #4f46e5;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>診断コンテンツ テンプレート デモ</h1>
+    <p>JSONを差し替えるだけで様々な診断を作成できます</p>
+  </div>
+
+  <!-- デモ1: 性格診断 (4択) -->
+  <div class="demo-section">
+    <h2>デモ1: 性格タイプ診断（4択）</h2>
+    <p class="note">data/personality-diagnosis.json を読み込み</p>
+    <div class="diagnosis-container" id="diagnosis-1"></div>
+  </div>
+
+  <!-- デモ2: Yes/No 診断 (2択) -->
+  <div class="demo-section">
+    <h2>デモ2: インドア度チェック（Yes/No 2択）</h2>
+    <p class="note">data/yesno-diagnosis.json を読み込み</p>
+    <div class="diagnosis-container" id="diagnosis-2"></div>
+  </div>
+
+  <!-- 動的切り替えデモ -->
+  <div class="demo-section">
+    <h2>デモ3: JSON動的切り替え</h2>
+    <p class="note">ボタンで読み込むJSONを切り替え</p>
+    <div class="switch-bar">
+      <button class="active" data-json="../data/personality-diagnosis.json">性格タイプ</button>
+      <button data-json="../data/yesno-diagnosis.json">インドア度</button>
+    </div>
+    <div class="diagnosis-container" id="diagnosis-3"></div>
+  </div>
+
+  <script src="../src/diagnostic.js"></script>
+  <script>
+    // デモ1: 性格診断
+    DiagnosticModule.loadFromJSON('#diagnosis-1', '../data/personality-diagnosis.json')
+      .then(instance => {
+        instance.onResult((result, scores, answers) => {
+          console.log('[デモ1] 結果:', result.title, scores);
+        });
+      });
+
+    // デモ2: Yes/No 診断
+    DiagnosticModule.loadFromJSON('#diagnosis-2', '../data/yesno-diagnosis.json');
+
+    // デモ3: 動的切り替え
+    let demo3Instance = null;
+    const switchBtns = document.querySelectorAll('.switch-bar button');
+
+    async function loadDemo3(jsonPath) {
+      demo3Instance = await DiagnosticModule.loadFromJSON('#diagnosis-3', jsonPath);
+    }
+
+    switchBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadDemo3(btn.dataset.json);
+      });
+    });
+
+    // 初期表示
+    loadDemo3('../data/personality-diagnosis.json');
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>診断コンテンツ 埋め込み例</title>
+</head>
+<body>
+
+  <h1>あなたのWebサイト</h1>
+  <p>ここに通常のコンテンツが入ります...</p>
+
+  <!-- ============================================
+       埋め込み手順:
+       1. diagnostic.js を読み込む
+       2. 空の div に id を付ける
+       3. DiagnosticModule.loadFromJSON() で起動
+       ============================================ -->
+
+  <!-- Step 1: コンテナを配置 -->
+  <div id="my-diagnosis"></div>
+
+  <!-- Step 2: スクリプトを読み込み & 起動 -->
+  <script src="../src/diagnostic.js"></script>
+  <script>
+    DiagnosticModule.loadFromJSON('#my-diagnosis', '../data/personality-diagnosis.json');
+  </script>
+
+</body>
+</html>

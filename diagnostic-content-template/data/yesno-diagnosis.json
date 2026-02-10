@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "id": "yesno-diagnosis",
+    "title": "あなたのインドア度チェック",
+    "description": "Yes/Noで答えるだけ！あなたのインドア度を診断します。",
+    "version": "1.0.0"
+  },
+  "settings": {
+    "choiceStyle": "horizontal",
+    "showProgress": true,
+    "showQuestionNumber": true,
+    "animation": "slide",
+    "resultShareEnabled": false
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "text": "週末は家にいることが多い",
+      "choices": [
+        { "id": "q1a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+        { "id": "q1b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "ネットショッピングをよく使う",
+      "choices": [
+        { "id": "q2a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+        { "id": "q2b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "アウトドアの趣味がある",
+      "choices": [
+        { "id": "q3a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+        { "id": "q3b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "動画配信サービスに加入している",
+      "choices": [
+        { "id": "q4a", "text": "Yes", "scores": { "indoor": 1, "outdoor": 0 } },
+        { "id": "q4b", "text": "No", "scores": { "indoor": 0, "outdoor": 1 } }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "旅行の計画を立てるのが好き",
+      "choices": [
+        { "id": "q5a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+        { "id": "q5b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "indoor",
+      "title": "インドア派",
+      "description": "あなたは快適な室内で過ごすことが好きなインドア派です。読書やゲーム、映画鑑賞など、家の中でも充実した時間を過ごせるタイプです。",
+      "image": "",
+      "tags": ["インドア", "家が好き"]
+    },
+    {
+      "id": "outdoor",
+      "title": "アウトドア派",
+      "description": "あなたは外に出て活動するのが好きなアウトドア派です。自然や街を楽しみ、アクティブに過ごすことでエネルギーを得るタイプです。",
+      "image": "",
+      "tags": ["アウトドア", "活動的"]
+    }
+  ]
+}
