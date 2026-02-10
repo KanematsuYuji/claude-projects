@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "id": "pet-compatibility",
+    "title": "あなたにぴったりのペット診断",
+    "description": "Yes/Noで答えるだけ！あなたに合うペットを分岐型で診断します。",
+    "version": "1.0.0"
+  },
+  "settings": {
+    "scoringMode": "branch",
+    "choiceStyle": "horizontal",
+    "showProgress": false,
+    "showQuestionNumber": true,
+    "animation": "slide",
+    "resultShareEnabled": false,
+    "startQuestion": "q1"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "text": "毎日散歩に出かけるのは苦にならない？",
+      "image": "",
+      "choices": [
+        { "id": "q1a", "text": "Yes", "next": "q2" },
+        { "id": "q1b", "text": "No", "next": "q5" }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "広い家やスペースがある？",
+      "image": "",
+      "choices": [
+        { "id": "q2a", "text": "Yes", "next": "q3" },
+        { "id": "q2b", "text": "No", "next": "q4" }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "アウトドア派？",
+      "image": "",
+      "choices": [
+        { "id": "q3a", "text": "Yes", "next": "R1" },
+        { "id": "q3b", "text": "No", "next": "R2" }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "一人暮らし？",
+      "image": "",
+      "choices": [
+        { "id": "q4a", "text": "Yes", "next": "R3" },
+        { "id": "q4b", "text": "No", "next": "R2" }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "家で静かに過ごすのが好き？",
+      "image": "",
+      "choices": [
+        { "id": "q5a", "text": "Yes", "next": "q6" },
+        { "id": "q5b", "text": "No", "next": "q7" }
+      ]
+    },
+    {
+      "id": "q6",
+      "text": "ツンデレな性格も愛せる？",
+      "image": "",
+      "choices": [
+        { "id": "q6a", "text": "Yes", "next": "R4" },
+        { "id": "q6b", "text": "No", "next": "R5" }
+      ]
+    },
+    {
+      "id": "q7",
+      "text": "お世話に時間をかけられる？",
+      "image": "",
+      "choices": [
+        { "id": "q7a", "text": "Yes", "next": "R6" },
+        { "id": "q7b", "text": "No", "next": "R5" }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "R1",
+      "title": "大型犬タイプ",
+      "description": "広いスペースとアウトドア好きなあなたには、ラブラドールやゴールデンレトリバーなどの大型犬がぴったり！一緒に走り回る最高のパートナーになります。",
+      "image": "",
+      "url": "",
+      "tags": ["大型犬", "アウトドア", "アクティブ"]
+    },
+    {
+      "id": "R2",
+      "title": "中型犬タイプ",
+      "description": "散歩好きで家庭的なあなたには、柴犬やコーギーなどの中型犬がおすすめ。室内でも屋外でもバランスよく過ごせます。",
+      "image": "",
+      "url": "",
+      "tags": ["中型犬", "バランス", "家庭的"]
+    },
+    {
+      "id": "R3",
+      "title": "小型犬タイプ",
+      "description": "一人暮らしで散歩も好きなあなたには、チワワやトイプードルなどの小型犬が合います。コンパクトなスペースでも快適に暮らせます。",
+      "image": "",
+      "url": "",
+      "tags": ["小型犬", "一人暮らし", "コンパクト"]
+    },
+    {
+      "id": "R4",
+      "title": "猫タイプ",
+      "description": "静かに過ごすのが好きでツンデレも愛せるあなたには、猫がぴったり！気まぐれな性格に癒される日々を過ごせます。",
+      "image": "",
+      "url": "",
+      "tags": ["猫", "インドア", "ツンデレ"]
+    },
+    {
+      "id": "R5",
+      "title": "ハムスター・うさぎタイプ",
+      "description": "手軽に飼えてかわいい小動物があなたにはぴったり。ハムスターやうさぎは見ているだけで癒されます。",
+      "image": "",
+      "url": "",
+      "tags": ["小動物", "手軽", "かわいい"]
+    },
+    {
+      "id": "R6",
+      "title": "熱帯魚・爬虫類タイプ",
+      "description": "お世話に時間をかけられるけどアクティブではないあなたには、熱帯魚や爬虫類がおすすめ。インテリアとしても楽しめる奥深い世界です。",
+      "image": "",
+      "url": "",
+      "tags": ["熱帯魚", "爬虫類", "インテリア"]
+    }
+  ]
+}

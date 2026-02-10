@@ -32,8 +32,22 @@ class DiagnosticModule {
 
     this.options = options;
     this.currentIndex = 0;
+    this.currentQuestionId = null; // branch モード用
     this.scores = {};
     this.answers = [];
+    this._questionStepCount = 0; // branch モード: 現在の質問ステップ数
+
+    // questions を id で引けるマップを作成
+    this._questionMap = {};
+    this.questions.forEach((q) => {
+      this._questionMap[q.id] = q;
+    });
+
+    // results を id で引けるマップを作成
+    this._resultMap = {};
+    this.results.forEach((r) => {
+      this._resultMap[r.id] = r;
+    });
 
     this._initScores();
     this._injectStyles();
@@ -49,7 +63,7 @@ class DiagnosticModule {
     showQuestionNumber: true,
     animation: 'fade',
     resultShareEnabled: false,
-    scoringMode: 'highest',  // "highest" = カテゴリ別最高スコア, "range" = 合計スコアの範囲判定
+    scoringMode: 'highest',  // "highest" | "range" | "branch"
   };
 
   /**
@@ -71,6 +85,8 @@ class DiagnosticModule {
   /** 診断を開始（スタート画面を表示） */
   start() {
     this.currentIndex = 0;
+    this.currentQuestionId = this.settings.startQuestion || this.questions[0].id;
+    this._questionStepCount = 0;
     this.answers = [];
     this._initScores();
     this._renderStart();
@@ -83,6 +99,9 @@ class DiagnosticModule {
 
   /** 現在のスコアを取得 */
   getScores() {
+    if (this.settings.scoringMode === 'branch') {
+      return { resultId: this._branchResultId || null };
+    }
     if (this.settings.scoringMode === 'range') {
       return { total: this.totalScore };
     }
@@ -126,10 +145,21 @@ class DiagnosticModule {
   }
 
   _getTopResult() {
+    if (this.settings.scoringMode === 'branch') {
+      return this._getBranchResult();
+    }
     if (this.settings.scoringMode === 'range') {
       return this._getRangeResult();
     }
     return this._getHighestResult();
+  }
+
+  /** branch モード: choice.next で指定された結果を返す */
+  _getBranchResult() {
+    if (this._branchResultId && this._resultMap[this._branchResultId]) {
+      return this._resultMap[this._branchResultId];
+    }
+    return this.results[0];
   }
 
   /** highest モード: カテゴリ別最高スコアの結果を返す */
@@ -213,13 +243,22 @@ class DiagnosticModule {
 
   _renderQuestion() {
     this._clear();
-    const q = this.questions[this.currentIndex];
+    const isBranch = this.settings.scoringMode === 'branch';
+    const q = isBranch
+      ? this._questionMap[this.currentQuestionId]
+      : this.questions[this.currentIndex];
     const total = this.questions.length;
+
+    if (!q) {
+      // branch モードで質問が見つからない場合はフォールバック
+      this._renderResult();
+      return;
+    }
 
     const wrap = this._el('div', 'dmod-wrap');
 
-    // Progress bar
-    if (this.settings.showProgress) {
+    // Progress bar (branch モードでは非表示 or ステップベース)
+    if (this.settings.showProgress && !isBranch) {
       const progressOuter = this._el('div', 'dmod-progress');
       const progressInner = this._el('div', 'dmod-progress__bar');
       progressInner.style.width = `${((this.currentIndex) / total) * 100}%`;
@@ -228,8 +267,11 @@ class DiagnosticModule {
     }
 
     // Question number
+    const stepNum = isBranch ? this._questionStepCount + 1 : this.currentIndex + 1;
     const qNum = this.settings.showQuestionNumber
-      ? `<span class="dmod-qnum">Q${this.currentIndex + 1}/${total}</span> `
+      ? (isBranch
+        ? `<span class="dmod-qnum">Q${stepNum}</span> `
+        : `<span class="dmod-qnum">Q${stepNum}/${total}</span> `)
       : '';
 
     const qText = this._el('p', 'dmod-question', qNum + q.text);
@@ -264,14 +306,39 @@ class DiagnosticModule {
   }
 
   _handleAnswer(choice) {
-    this.answers.push({ questionId: this.questions[this.currentIndex].id, choiceId: choice.id });
-    // range モードは choice.score (数値)、highest モードは choice.scores (オブジェクト)
-    this._addScores(this.settings.scoringMode === 'range' ? choice.score : choice.scores);
-    this.currentIndex++;
-    if (this.currentIndex < this.questions.length) {
-      this._renderQuestion();
+    const mode = this.settings.scoringMode;
+
+    if (mode === 'branch') {
+      // branch モード: choice.next で次の質問IDまたは結果IDへ遷移
+      const currentQId = this.currentQuestionId;
+      this.answers.push({ questionId: currentQId, choiceId: choice.id });
+      this._questionStepCount++;
+
+      const nextId = choice.next;
+      if (nextId && this._questionMap[nextId]) {
+        // 次の質問へ
+        this.currentQuestionId = nextId;
+        this._renderQuestion();
+      } else if (nextId && this._resultMap[nextId]) {
+        // 結果を直接指定
+        this._branchResultId = nextId;
+        this._renderResult();
+      } else {
+        // next が未設定または不明 → フォールバック結果表示
+        this._branchResultId = null;
+        this._renderResult();
+      }
     } else {
-      this._renderResult();
+      // highest / range モード
+      const currentQ = this.questions[this.currentIndex];
+      this.answers.push({ questionId: currentQ.id, choiceId: choice.id });
+      this._addScores(mode === 'range' ? choice.score : choice.scores);
+      this.currentIndex++;
+      if (this.currentIndex < this.questions.length) {
+        this._renderQuestion();
+      } else {
+        this._renderResult();
+      }
     }
   }
 

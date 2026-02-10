@@ -10,7 +10,9 @@ diagnostic-content-template/
 │   └── diagnostic.js      # コアエンジン（単一ファイル、依存なし）
 ├── data/
 │   ├── personality-diagnosis.json   # サンプル: 4択性格診断
-│   └── yesno-diagnosis.json         # サンプル: Yes/No 2択診断
+│   ├── yesno-diagnosis.json         # サンプル: Yes/No 2択診断
+│   ├── stress-diagnosis.json        # サンプル: ストレス度チェック（range方式）
+│   └── branch-pet-diagnosis.json    # サンプル: ペット診断（branch分岐方式）
 └── demo/
     ├── index.html           # デモページ（複数診断の表示例）
     └── embed-example.html   # 最小限の埋め込み例
@@ -63,12 +65,13 @@ instance.onResult((result, scores, answers) => {
     "version": "1.0.0"
   },
   "settings": {
-    "scoringMode": "highest",   // "highest" | "range" (後述)
+    "scoringMode": "highest",   // "highest" | "range" | "branch" (後述)
     "choiceStyle": "grid",       // "grid" | "horizontal"
     "showProgress": true,        // プログレスバー表示
     "showQuestionNumber": true,  // 質問番号表示
     "animation": "fade",         // "fade" | "slide" | "none"
-    "resultShareEnabled": false  // Web Share API によるシェアボタン
+    "resultShareEnabled": false, // Web Share API によるシェアボタン
+    "startQuestion": "q1"       // branch モードのみ: 最初の質問ID
   },
   "questions": [
     {
@@ -79,8 +82,9 @@ instance.onResult((result, scores, answers) => {
         {
           "id": "q1a",
           "text": "選択肢テキスト",
-          "scores": { "resultId": 3 }  // highest モード: 結果IDごとの加算値
+          "scores": { "resultId": 3 },  // highest モード: 結果IDごとの加算値
           // "score": 3               // range モード: 単一の加算値
+          // "next": "q2"             // branch モード: 次の質問IDまたは結果ID
         }
       ]
     }
@@ -134,13 +138,48 @@ instance.onResult((result, scores, answers) => {
 { "id": "D", "title": "ストレス高い",     "range": [17, 20], ... }
 ```
 
+#### `branch` — 分岐型（デシジョンツリー）方式
+
+各選択肢に次の質問IDまたは結果IDを指定し、回答に応じて質問が分岐していきます。Yes/Noの2択診断などに最適です。
+
+```jsonc
+// settings
+{ "scoringMode": "branch", "startQuestion": "q1" }
+
+// 質問（choice.next で次の質問IDまたは結果IDを指定）
+{
+  "id": "q1",
+  "text": "毎日散歩に出かけるのは苦にならない？",
+  "choices": [
+    { "id": "q1a", "text": "Yes", "next": "q2" },   // → 質問q2へ
+    { "id": "q1b", "text": "No",  "next": "q5" }    // → 質問q5へ
+  ]
+}
+
+// 末端の質問（next に結果IDを指定すると診断結果へ）
+{
+  "id": "q3",
+  "text": "アウトドア派？",
+  "choices": [
+    { "id": "q3a", "text": "Yes", "next": "R1" },   // → 結果R1へ
+    { "id": "q3b", "text": "No",  "next": "R2" }    // → 結果R2へ
+  ]
+}
+
+// 結果（scores, range 不要）
+{ "id": "R1", "title": "大型犬タイプ", ... }
+```
+
+> **注意**: branch モードではプログレスバーは非表示になります（総質問数が不定のため）。質問番号は現在のステップ数のみ表示されます。
+
 ### カスタマイズのポイント
 
 | やりたいこと | 方法 |
 |---|---|
 | 質問数を変更 | `questions` 配列の要素を増減 |
 | 2択 / 3択 / 4択 | 各質問の `choices` 配列の要素数を変更 |
-| スコア方式を変更 | `settings.scoringMode` を `"highest"` or `"range"` に設定 |
+| スコア方式を変更 | `settings.scoringMode` を `"highest"` / `"range"` / `"branch"` に設定 |
+| 分岐型にする | `scoringMode: "branch"` + `startQuestion` + 各選択肢に `next` を設定 |
 | 結果パターンを増やす | `results` 配列に追加し、`scores` のキーまたは `range` を合わせる |
 | 質問に画像を表示 | `questions[].image` に画像URLを設定 |
 | 結果に画像を表示 | `results[].image` に画像URLを設定 |
