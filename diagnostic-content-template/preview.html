@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>診断コンテンツ プレビュー</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* --- Header --- */
+    .preview-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #fff;
+      text-align: center;
+      padding: 48px 20px 36px;
+    }
+    .preview-header h1 {
+      font-size: 1.7rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .preview-header p {
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+
+    /* --- Tab navigation --- */
+    .tab-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tab-btn {
+      padding: 16px 32px;
+      border: none;
+      background: transparent;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn:hover {
+      color: #4f46e5;
+    }
+    .tab-btn.active {
+      color: #4f46e5;
+      border-bottom-color: #4f46e5;
+    }
+
+    /* --- Tab content --- */
+    .tab-panel {
+      display: none;
+      max-width: 720px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* --- Card wrapper for diagnosis --- */
+    .preview-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    /* --- Section label --- */
+    .section-label {
+      font-size: 0.8rem;
+      color: #4f46e5;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      text-align: center;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* --- Footer --- */
+    .preview-footer {
+      text-align: center;
+      padding: 32px 20px 48px;
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <div class="preview-header">
+    <h1>診断コンテンツ テンプレート</h1>
+    <p>JSONを差し替えるだけで自由にカスタマイズできる汎用診断モジュール</p>
+  </div>
+
+  <!-- ===== Tabs ===== -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-personality">性格タイプ診断（4択）</button>
+    <button class="tab-btn" data-tab="tab-yesno">インドア度チェック（Yes/No）</button>
+  </nav>
+
+  <!-- ===== Tab 1: 性格タイプ診断 ===== -->
+  <div class="tab-panel active" id="tab-personality">
+    <p class="section-label">DEMO 1</p>
+    <p class="section-title">4つの質問 × 4択 → 4つの結果パターン</p>
+    <div class="preview-card">
+      <div id="diagnosis-personality"></div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 2: Yes/No 診断 ===== -->
+  <div class="tab-panel" id="tab-yesno">
+    <p class="section-label">DEMO 2</p>
+    <p class="section-title">5つの質問 × Yes/No 2択 → 2つの結果パターン</p>
+    <div class="preview-card">
+      <div id="diagnosis-yesno"></div>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <div class="preview-footer">
+    diagnostic-content-template &mdash; file:// で直接開けるスタンドアロンプレビュー
+  </div>
+
+  <!-- ===================================================================
+       All data & scripts inline (no fetch required — works with file://)
+       =================================================================== -->
+  <script>
+    // ---------- Inline JSON Data ----------
+
+    const personalityData = {
+      "meta": {
+        "id": "personality-diagnosis",
+        "title": "あなたのタイプ診断",
+        "description": "4つの質問に答えて、あなたのタイプを診断しましょう！",
+        "version": "1.0.0"
+      },
+      "settings": {
+        "choiceStyle": "grid",
+        "showProgress": true,
+        "showQuestionNumber": true,
+        "animation": "fade",
+        "resultShareEnabled": false
+      },
+      "questions": [
+        {
+          "id": "q1",
+          "text": "休日の過ごし方で一番好きなのは？",
+          "choices": [
+            { "id": "q1a", "text": "友人と外出する", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
+            { "id": "q1b", "text": "家でゆっくり読書", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
+            { "id": "q1c", "text": "新しい場所を探検する", "scores": { "A": 1, "B": 0, "C": 3, "D": 0 } },
+            { "id": "q1d", "text": "趣味に没頭する", "scores": { "A": 0, "B": 1, "C": 0, "D": 3 } }
+          ]
+        },
+        {
+          "id": "q2",
+          "text": "グループでの役割は？",
+          "choices": [
+            { "id": "q2a", "text": "リーダーとしてまとめる", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
+            { "id": "q2b", "text": "サポート役に回る", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
+            { "id": "q2c", "text": "アイデアを出す", "scores": { "A": 1, "B": 0, "C": 3, "D": 0 } },
+            { "id": "q2d", "text": "黙々と作業する", "scores": { "A": 0, "B": 1, "C": 0, "D": 3 } }
+          ]
+        },
+        {
+          "id": "q3",
+          "text": "ストレス発散法は？",
+          "choices": [
+            { "id": "q3a", "text": "人と話す", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
+            { "id": "q3b", "text": "自然の中でリラックス", "scores": { "A": 0, "B": 3, "C": 1, "D": 0 } },
+            { "id": "q3c", "text": "スポーツや運動", "scores": { "A": 1, "B": 0, "C": 3, "D": 0 } },
+            { "id": "q3d", "text": "音楽や映画を楽しむ", "scores": { "A": 0, "B": 1, "C": 0, "D": 3 } }
+          ]
+        },
+        {
+          "id": "q4",
+          "text": "仕事で大切にしていることは？",
+          "choices": [
+            { "id": "q4a", "text": "チームワーク", "scores": { "A": 3, "B": 1, "C": 0, "D": 0 } },
+            { "id": "q4b", "text": "安定と確実さ", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
+            { "id": "q4c", "text": "挑戦と成長", "scores": { "A": 1, "B": 0, "C": 3, "D": 0 } },
+            { "id": "q4d", "text": "専門性を極める", "scores": { "A": 0, "B": 0, "C": 1, "D": 3 } }
+          ]
+        }
+      ],
+      "results": [
+        {
+          "id": "A",
+          "title": "社交派リーダータイプ",
+          "description": "あなたは人と関わることが好きで、自然とリーダーシップを発揮するタイプです。コミュニケーション能力が高く、チームを引っ張る力があります。",
+          "image": "",
+          "tags": ["社交的", "リーダー", "コミュニケーション"]
+        },
+        {
+          "id": "B",
+          "title": "穏やかサポータータイプ",
+          "description": "あなたは穏やかで思いやりがあり、周囲を支えることが得意なタイプです。安定感があり、信頼される存在です。",
+          "image": "",
+          "tags": ["穏やか", "サポーター", "信頼"]
+        },
+        {
+          "id": "C",
+          "title": "冒険チャレンジャータイプ",
+          "description": "あなたは好奇心旺盛で、新しいことに挑戦するのが大好きなタイプです。行動力があり、周囲にエネルギーを与えます。",
+          "image": "",
+          "tags": ["冒険", "チャレンジャー", "行動力"]
+        },
+        {
+          "id": "D",
+          "title": "職人クリエイタータイプ",
+          "description": "あなたは一つのことに深く集中し、高い専門性を発揮するタイプです。独自の世界観を持ち、クリエイティブな才能があります。",
+          "image": "",
+          "tags": ["職人", "クリエイター", "専門性"]
+        }
+      ]
+    };
+
+    const yesnoData = {
+      "meta": {
+        "id": "yesno-diagnosis",
+        "title": "あなたのインドア度チェック",
+        "description": "Yes/Noで答えるだけ！あなたのインドア度を診断します。",
+        "version": "1.0.0"
+      },
+      "settings": {
+        "choiceStyle": "horizontal",
+        "showProgress": true,
+        "showQuestionNumber": true,
+        "animation": "slide",
+        "resultShareEnabled": false
+      },
+      "questions": [
+        {
+          "id": "q1",
+          "text": "週末は家にいることが多い",
+          "choices": [
+            { "id": "q1a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+            { "id": "q1b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
+          ]
+        },
+        {
+          "id": "q2",
+          "text": "ネットショッピングをよく使う",
+          "choices": [
+            { "id": "q2a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+            { "id": "q2b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
+          ]
+        },
+        {
+          "id": "q3",
+          "text": "アウトドアの趣味がある",
+          "choices": [
+            { "id": "q3a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+            { "id": "q3b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
+          ]
+        },
+        {
+          "id": "q4",
+          "text": "動画配信サービスに加入している",
+          "choices": [
+            { "id": "q4a", "text": "Yes", "scores": { "indoor": 1, "outdoor": 0 } },
+            { "id": "q4b", "text": "No", "scores": { "indoor": 0, "outdoor": 1 } }
+          ]
+        },
+        {
+          "id": "q5",
+          "text": "旅行の計画を立てるのが好き",
+          "choices": [
+            { "id": "q5a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+            { "id": "q5b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
+          ]
+        }
+      ],
+      "results": [
+        {
+          "id": "indoor",
+          "title": "インドア派",
+          "description": "あなたは快適な室内で過ごすことが好きなインドア派です。読書やゲーム、映画鑑賞など、家の中でも充実した時間を過ごせるタイプです。",
+          "image": "",
+          "tags": ["インドア", "家が好き"]
+        },
+        {
+          "id": "outdoor",
+          "title": "アウトドア派",
+          "description": "あなたは外に出て活動するのが好きなアウトドア派です。自然や街を楽しみ、アクティブに過ごすことでエネルギーを得るタイプです。",
+          "image": "",
+          "tags": ["アウトドア", "活動的"]
+        }
+      ]
+    };
+  </script>
+
+  <!-- DiagnosticModule engine (inline) -->
+  <script>
+    class DiagnosticModule {
+      constructor(container, data, options = {}) {
+        this.container =
+          typeof container === 'string'
+            ? document.querySelector(container)
+            : container;
+        if (!this.container) {
+          throw new Error('DiagnosticModule: コンテナが見つかりません - ' + container);
+        }
+        this.data = data;
+        this.meta = data.meta;
+        this.settings = Object.assign({}, DiagnosticModule.DEFAULT_SETTINGS, data.settings);
+        this.questions = data.questions;
+        this.results = data.results;
+        this.options = options;
+        this.currentIndex = 0;
+        this.scores = {};
+        this.answers = [];
+        this._initScores();
+        this._injectStyles();
+      }
+
+      static DEFAULT_SETTINGS = {
+        choiceStyle: 'grid',
+        showProgress: true,
+        showQuestionNumber: true,
+        animation: 'fade',
+        resultShareEnabled: false,
+      };
+
+      static loadFromJSON(container, jsonPath, options = {}) {
+        return fetch(jsonPath)
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            var instance = new DiagnosticModule(container, data, options);
+            instance.start();
+            return instance;
+          });
+      }
+
+      start() {
+        this.currentIndex = 0;
+        this.answers = [];
+        this._initScores();
+        this._renderStart();
+      }
+
+      reset() { this.start(); }
+      getScores() { return Object.assign({}, this.scores); }
+      onResult(callback) { this._onResultCallback = callback; }
+
+      _initScores() {
+        this.scores = {};
+        var self = this;
+        this.results.forEach(function(r) { self.scores[r.id] = 0; });
+      }
+
+      _addScores(choiceScores) {
+        var self = this;
+        Object.keys(choiceScores).forEach(function(key) {
+          if (self.scores[key] !== undefined) {
+            self.scores[key] += choiceScores[key];
+          }
+        });
+      }
+
+      _getTopResult() {
+        var maxScore = -Infinity;
+        var topId = this.results[0].id;
+        var self = this;
+        Object.keys(this.scores).forEach(function(id) {
+          if (self.scores[id] > maxScore) {
+            maxScore = self.scores[id];
+            topId = id;
+          }
+        });
+        return this.results.find(function(r) { return r.id === topId; });
+      }
+
+      _el(tag, className, html) {
+        var el = document.createElement(tag);
+        if (className) el.className = className;
+        if (html !== undefined) el.innerHTML = html;
+        return el;
+      }
+
+      _clear() { this.container.innerHTML = ''; }
+
+      _animate(el) {
+        var anim = this.settings.animation;
+        if (anim === 'fade') {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.35s ease';
+          requestAnimationFrame(function() { el.style.opacity = '1'; });
+        } else if (anim === 'slide') {
+          el.style.transform = 'translateX(30px)';
+          el.style.opacity = '0';
+          el.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+          requestAnimationFrame(function() {
+            el.style.transform = 'translateX(0)';
+            el.style.opacity = '1';
+          });
+        }
+      }
+
+      _renderStart() {
+        this._clear();
+        var wrap = this._el('div', 'dmod-wrap');
+        var inner = this._el('div', 'dmod-start');
+        inner.appendChild(this._el('h2', 'dmod-title', this.meta.title));
+        inner.appendChild(this._el('p', 'dmod-desc', this.meta.description));
+        var btn = this._el('button', 'dmod-btn dmod-btn--start', '診断をはじめる');
+        var self = this;
+        btn.addEventListener('click', function() { self._renderQuestion(); });
+        inner.appendChild(btn);
+        wrap.appendChild(inner);
+        this.container.appendChild(wrap);
+        this._animate(wrap);
+      }
+
+      _renderQuestion() {
+        this._clear();
+        var q = this.questions[this.currentIndex];
+        var total = this.questions.length;
+        var wrap = this._el('div', 'dmod-wrap');
+
+        if (this.settings.showProgress) {
+          var progressOuter = this._el('div', 'dmod-progress');
+          var progressInner = this._el('div', 'dmod-progress__bar');
+          progressInner.style.width = ((this.currentIndex) / total * 100) + '%';
+          progressOuter.appendChild(progressInner);
+          wrap.appendChild(progressOuter);
+        }
+
+        var qNum = this.settings.showQuestionNumber
+          ? '<span class="dmod-qnum">Q' + (this.currentIndex + 1) + '/' + total + '</span> '
+          : '';
+        wrap.appendChild(this._el('p', 'dmod-question', qNum + q.text));
+
+        var choiceCount = q.choices.length;
+        var styleClass =
+          this.settings.choiceStyle === 'horizontal' || choiceCount === 2
+            ? 'dmod-choices--horizontal'
+            : 'dmod-choices--grid';
+        var choicesWrap = this._el('div', 'dmod-choices ' + styleClass);
+        var self = this;
+        q.choices.forEach(function(choice) {
+          var btn = self._el('button', 'dmod-choice', choice.text);
+          btn.addEventListener('click', function() { self._handleAnswer(choice); });
+          choicesWrap.appendChild(btn);
+        });
+
+        wrap.appendChild(choicesWrap);
+        this.container.appendChild(wrap);
+        this._animate(wrap);
+      }
+
+      _handleAnswer(choice) {
+        this.answers.push({ questionId: this.questions[this.currentIndex].id, choiceId: choice.id });
+        this._addScores(choice.scores);
+        this.currentIndex++;
+        if (this.currentIndex < this.questions.length) {
+          this._renderQuestion();
+        } else {
+          this._renderResult();
+        }
+      }
+
+      _renderResult() {
+        this._clear();
+        var result = this._getTopResult();
+        var wrap = this._el('div', 'dmod-wrap');
+        var inner = this._el('div', 'dmod-result');
+
+        inner.appendChild(this._el('p', 'dmod-result__label', '診断結果'));
+        inner.appendChild(this._el('h2', 'dmod-result__title', result.title));
+
+        if (result.image) {
+          var img = this._el('img', 'dmod-result__image');
+          img.src = result.image;
+          img.alt = result.title;
+          inner.appendChild(img);
+        }
+
+        inner.appendChild(this._el('p', 'dmod-result__desc', result.description));
+
+        if (result.tags && result.tags.length) {
+          var tagsWrap = this._el('div', 'dmod-result__tags');
+          result.tags.forEach(function(t) {
+            tagsWrap.appendChild(document.createElement('span'));
+            tagsWrap.lastChild.className = 'dmod-tag';
+            tagsWrap.lastChild.textContent = '#' + t;
+          });
+          inner.appendChild(tagsWrap);
+        }
+
+        var self = this;
+        var retryBtn = this._el('button', 'dmod-btn dmod-btn--retry', 'もう一度診断する');
+        retryBtn.addEventListener('click', function() { self.reset(); });
+        inner.appendChild(retryBtn);
+
+        wrap.appendChild(inner);
+        this.container.appendChild(wrap);
+        this._animate(wrap);
+
+        if (this._onResultCallback) {
+          this._onResultCallback(result, this.getScores(), this.answers);
+        }
+      }
+
+      _injectStyles() {
+        if (document.getElementById('dmod-styles')) return;
+        var style = document.createElement('style');
+        style.id = 'dmod-styles';
+        style.textContent = DiagnosticModule.CSS;
+        document.head.appendChild(style);
+      }
+
+      static CSS = '\
+.dmod-wrap{max-width:640px;margin:0 auto;padding:32px 24px;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;color:#333;box-sizing:border-box}\
+.dmod-start{text-align:center}\
+.dmod-title{font-size:1.6rem;margin:0 0 12px;line-height:1.4}\
+.dmod-desc{font-size:1rem;color:#666;margin:0 0 28px;line-height:1.6}\
+.dmod-btn{display:inline-block;padding:14px 40px;border:none;border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s,transform .15s}\
+.dmod-btn:hover{transform:translateY(-2px)}\
+.dmod-btn--start,.dmod-btn--retry{background:#4f46e5;color:#fff}\
+.dmod-btn--start:hover,.dmod-btn--retry:hover{background:#4338ca}\
+.dmod-btn--share{background:#10b981;color:#fff;margin-right:12px;margin-bottom:12px}\
+.dmod-btn--share:hover{background:#059669}\
+.dmod-progress{height:6px;background:#e5e7eb;border-radius:3px;margin-bottom:24px;overflow:hidden}\
+.dmod-progress__bar{height:100%;background:#4f46e5;border-radius:3px;transition:width .4s ease}\
+.dmod-question{font-size:1.2rem;font-weight:600;margin:0 0 24px;line-height:1.5}\
+.dmod-qnum{color:#4f46e5;margin-right:6px}\
+.dmod-choices{display:flex;flex-wrap:wrap;gap:12px}\
+.dmod-choices--grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}\
+.dmod-choices--horizontal{display:flex;gap:12px;justify-content:center}\
+.dmod-choice{display:flex;align-items:center;justify-content:center;padding:16px 20px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-size:1rem;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;text-align:center;min-height:56px}\
+.dmod-choices--horizontal .dmod-choice{flex:1;max-width:200px}\
+.dmod-choice:hover{border-color:#4f46e5;background:#eef2ff;transform:translateY(-2px)}\
+.dmod-result{text-align:center}\
+.dmod-result__label{font-size:.9rem;color:#4f46e5;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}\
+.dmod-result__title{font-size:1.8rem;margin:0 0 20px;line-height:1.3}\
+.dmod-result__image{max-width:100%;height:auto;border-radius:12px;margin-bottom:20px}\
+.dmod-result__desc{font-size:1rem;line-height:1.7;color:#555;margin:0 0 24px}\
+.dmod-result__tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}\
+.dmod-tag{display:inline-block;padding:4px 14px;border-radius:20px;background:#f3f4f6;color:#6b7280;font-size:.85rem}\
+@media(max-width:480px){.dmod-wrap{padding:20px 16px}.dmod-title{font-size:1.3rem}.dmod-question{font-size:1.05rem}.dmod-choices--grid{grid-template-columns:1fr}.dmod-result__title{font-size:1.4rem}}\
+';
+    }
+
+  </script>
+
+  <!-- Initialization -->
+  <script>
+    // --- Tab switching ---
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // --- Launch diagnoses with inline data (no fetch needed) ---
+    var diag1 = new DiagnosticModule('#diagnosis-personality', personalityData);
+    diag1.start();
+
+    var diag2 = new DiagnosticModule('#diagnosis-yesno', yesnoData);
+    diag2.start();
+  </script>
+
+</body>
+</html>
