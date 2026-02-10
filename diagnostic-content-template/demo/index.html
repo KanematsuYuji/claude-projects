@@ -90,15 +90,31 @@
     <div class="diagnosis-container" id="diagnosis-2"></div>
   </div>
 
+  <!-- デモ3: ストレス度チェック (range) -->
+  <div class="demo-section">
+    <h2>デモ3: ストレス度チェック（range方式）</h2>
+    <p class="note">data/stress-diagnosis.json を読み込み — 合計スコアの範囲で結果を判定</p>
+    <div class="diagnosis-container" id="diagnosis-3"></div>
+  </div>
+
+  <!-- デモ4: ペット診断 (branch) -->
+  <div class="demo-section">
+    <h2>デモ4: ペット診断（branch分岐方式）</h2>
+    <p class="note">data/branch-pet-diagnosis.json を読み込み — Yes/Noで次の質問が分岐</p>
+    <div class="diagnosis-container" id="diagnosis-4"></div>
+  </div>
+
   <!-- 動的切り替えデモ -->
   <div class="demo-section">
-    <h2>デモ3: JSON動的切り替え</h2>
+    <h2>デモ5: JSON動的切り替え</h2>
     <p class="note">ボタンで読み込むJSONを切り替え</p>
     <div class="switch-bar">
       <button class="active" data-json="../data/personality-diagnosis.json">性格タイプ</button>
       <button data-json="../data/yesno-diagnosis.json">インドア度</button>
+      <button data-json="../data/stress-diagnosis.json">ストレス度</button>
+      <button data-json="../data/branch-pet-diagnosis.json">ペット診断</button>
     </div>
-    <div class="diagnosis-container" id="diagnosis-3"></div>
+    <div class="diagnosis-container" id="diagnosis-5"></div>
   </div>
 
   <script src="../src/diagnostic.js"></script>
@@ -114,24 +130,40 @@
     // デモ2: Yes/No 診断
     DiagnosticModule.loadFromJSON('#diagnosis-2', '../data/yesno-diagnosis.json');
 
-    // デモ3: 動的切り替え
-    let demo3Instance = null;
+    // デモ3: ストレス度チェック (range)
+    DiagnosticModule.loadFromJSON('#diagnosis-3', '../data/stress-diagnosis.json')
+      .then(instance => {
+        instance.onResult((result, scores) => {
+          console.log('[デモ3] 合計スコア:', scores.total, '→ 結果:', result.title);
+        });
+      });
+
+    // デモ4: ペット診断 (branch)
+    DiagnosticModule.loadFromJSON('#diagnosis-4', '../data/branch-pet-diagnosis.json')
+      .then(instance => {
+        instance.onResult((result, scores) => {
+          console.log('[デモ4] 結果:', result.title, scores);
+        });
+      });
+
+    // デモ5: 動的切り替え
+    let demo5Instance = null;
     const switchBtns = document.querySelectorAll('.switch-bar button');
 
-    async function loadDemo3(jsonPath) {
-      demo3Instance = await DiagnosticModule.loadFromJSON('#diagnosis-3', jsonPath);
+    async function loadDemo5(jsonPath) {
+      demo5Instance = await DiagnosticModule.loadFromJSON('#diagnosis-5', jsonPath);
     }
 
     switchBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         switchBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        loadDemo3(btn.dataset.json);
+        loadDemo5(btn.dataset.json);
       });
     });
 
     // 初期表示
-    loadDemo3('../data/personality-diagnosis.json');
+    loadDemo5('../data/personality-diagnosis.json');
   </script>
 
 </body>
