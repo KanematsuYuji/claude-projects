@@ -63,6 +63,7 @@ instance.onResult((result, scores, answers) => {
     "version": "1.0.0"
   },
   "settings": {
+    "scoringMode": "highest",   // "highest" | "range" (後述)
     "choiceStyle": "grid",       // "grid" | "horizontal"
     "showProgress": true,        // プログレスバー表示
     "showQuestionNumber": true,  // 質問番号表示
@@ -77,7 +78,8 @@ instance.onResult((result, scores, answers) => {
         {
           "id": "q1a",
           "text": "選択肢テキスト",
-          "scores": { "resultId": 3 }  // 結果IDに対するスコア加算値
+          "scores": { "resultId": 3 }  // highest モード: 結果IDごとの加算値
+          // "score": 3               // range モード: 単一の加算値
         }
       ]
     }
@@ -88,10 +90,46 @@ instance.onResult((result, scores, answers) => {
       "title": "結果タイトル",
       "description": "結果の説明文",
       "image": "",              // 画像URL（任意）
-      "tags": ["タグ1", "タグ2"]
+      "tags": ["タグ1", "タグ2"],
+      "range": [1, 5]           // range モードのみ: [最小値, 最大値]
     }
   ]
 }
+```
+
+### スコアリングモード
+
+#### `highest`（デフォルト）— カテゴリ別最高スコア方式
+
+各選択肢が複数の結果IDにスコアを加算し、最終的に最高スコアの結果を表示します。
+
+```jsonc
+// 選択肢
+{ "id": "q1a", "text": "友人と外出する", "scores": { "A": 3, "B": 0, "C": 1 } }
+
+// 結果（range 不要）
+{ "id": "A", "title": "社交派タイプ", ... }
+```
+
+#### `range` — 合計スコアの範囲判定方式
+
+各選択肢が単一のスコア値（`score`）を持ち、全回答の合計スコアがどの範囲に入るかで結果を判定します。
+
+```jsonc
+// settings
+{ "scoringMode": "range" }
+
+// 選択肢（score は単一の数値）
+{ "id": "q1a", "text": "ぐっすり眠れる",   "score": 1 }
+{ "id": "q1b", "text": "まあまあ眠れる",   "score": 2 }
+{ "id": "q1c", "text": "あまり眠れない",   "score": 3 }
+{ "id": "q1d", "text": "ほとんど眠れない", "score": 4 }
+
+// 結果（range: [最小値, 最大値] で範囲を指定）
+{ "id": "A", "title": "ストレスほぼなし", "range": [5, 8],   ... }
+{ "id": "B", "title": "ストレス軽度",     "range": [9, 12],  ... }
+{ "id": "C", "title": "ストレスやや高め", "range": [13, 16], ... }
+{ "id": "D", "title": "ストレス高い",     "range": [17, 20], ... }
 ```
 
 ### カスタマイズのポイント
@@ -100,7 +138,8 @@ instance.onResult((result, scores, answers) => {
 |---|---|
 | 質問数を変更 | `questions` 配列の要素を増減 |
 | 2択 / 3択 / 4択 | 各質問の `choices` 配列の要素数を変更 |
-| 結果パターンを増やす | `results` 配列に追加し、`scores` のキーを合わせる |
+| スコア方式を変更 | `settings.scoringMode` を `"highest"` or `"range"` に設定 |
+| 結果パターンを増やす | `results` 配列に追加し、`scores` のキーまたは `range` を合わせる |
 | 結果に画像を表示 | `results[].image` に画像URLを設定 |
 | スタイルを変更 | `.dmod-*` プレフィックスのCSSを上書き |
 

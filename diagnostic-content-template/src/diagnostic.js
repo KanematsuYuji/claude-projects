@@ -49,6 +49,7 @@ class DiagnosticModule {
     showQuestionNumber: true,
     animation: 'fade',
     resultShareEnabled: false,
+    scoringMode: 'highest',  // "highest" = カテゴリ別最高スコア, "range" = 合計スコアの範囲判定
   };
 
   /**
@@ -82,6 +83,9 @@ class DiagnosticModule {
 
   /** 現在のスコアを取得 */
   getScores() {
+    if (this.settings.scoringMode === 'range') {
+      return { total: this.totalScore };
+    }
     return { ...this.scores };
   }
 
@@ -95,21 +99,41 @@ class DiagnosticModule {
   /* ------------------------------------------------------------------ */
 
   _initScores() {
-    this.scores = {};
-    this.results.forEach((r) => {
-      this.scores[r.id] = 0;
-    });
+    if (this.settings.scoringMode === 'range') {
+      // range モード: 単一の合計スコア
+      this.totalScore = 0;
+    } else {
+      // highest モード: カテゴリ別スコア
+      this.scores = {};
+      this.results.forEach((r) => {
+        this.scores[r.id] = 0;
+      });
+    }
   }
 
   _addScores(choiceScores) {
-    Object.entries(choiceScores).forEach(([key, value]) => {
-      if (this.scores[key] !== undefined) {
-        this.scores[key] += value;
-      }
-    });
+    if (this.settings.scoringMode === 'range') {
+      // range モード: choice.score (数値) を加算
+      this.totalScore += (typeof choiceScores === 'number' ? choiceScores : 0);
+    } else {
+      // highest モード: カテゴリ別に加算
+      Object.entries(choiceScores).forEach(([key, value]) => {
+        if (this.scores[key] !== undefined) {
+          this.scores[key] += value;
+        }
+      });
+    }
   }
 
   _getTopResult() {
+    if (this.settings.scoringMode === 'range') {
+      return this._getRangeResult();
+    }
+    return this._getHighestResult();
+  }
+
+  /** highest モード: カテゴリ別最高スコアの結果を返す */
+  _getHighestResult() {
     let maxScore = -Infinity;
     let topId = this.results[0].id;
     Object.entries(this.scores).forEach(([id, score]) => {
@@ -119,6 +143,18 @@ class DiagnosticModule {
       }
     });
     return this.results.find((r) => r.id === topId);
+  }
+
+  /** range モード: 合計スコアが該当する範囲の結果を返す */
+  _getRangeResult() {
+    const total = this.totalScore;
+    for (const r of this.results) {
+      if (r.range && total >= r.range[0] && total <= r.range[1]) {
+        return r;
+      }
+    }
+    // どの範囲にも該当しない場合は最後の結果をフォールバック
+    return this.results[this.results.length - 1];
   }
 
   /* ------------------------------------------------------------------ */
@@ -221,7 +257,8 @@ class DiagnosticModule {
 
   _handleAnswer(choice) {
     this.answers.push({ questionId: this.questions[this.currentIndex].id, choiceId: choice.id });
-    this._addScores(choice.scores);
+    // range モードは choice.score (数値)、highest モードは choice.scores (オブジェクト)
+    this._addScores(this.settings.scoringMode === 'range' ? choice.score : choice.scores);
     this.currentIndex++;
     if (this.currentIndex < this.questions.length) {
       this._renderQuestion();

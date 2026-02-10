@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "id": "stress-level-diagnosis",
+    "title": "あなたのストレス度チェック",
+    "description": "5つの質問に答えて、今のストレスレベルを診断しましょう。",
+    "version": "1.0.0"
+  },
+  "settings": {
+    "scoringMode": "range",
+    "choiceStyle": "grid",
+    "showProgress": true,
+    "showQuestionNumber": true,
+    "animation": "fade",
+    "resultShareEnabled": false
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "text": "最近、よく眠れていますか？",
+      "choices": [
+        { "id": "q1a", "text": "ぐっすり眠れる", "score": 1 },
+        { "id": "q1b", "text": "まあまあ眠れる", "score": 2 },
+        { "id": "q1c", "text": "あまり眠れない", "score": 3 },
+        { "id": "q1d", "text": "ほとんど眠れない", "score": 4 }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "仕事や学校のことを考えるとどう感じますか？",
+      "choices": [
+        { "id": "q2a", "text": "楽しみ", "score": 1 },
+        { "id": "q2b", "text": "特に何も感じない", "score": 2 },
+        { "id": "q2c", "text": "少し憂うつ", "score": 3 },
+        { "id": "q2d", "text": "行きたくない", "score": 4 }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "休日にリフレッシュできていますか？",
+      "choices": [
+        { "id": "q3a", "text": "十分できている", "score": 1 },
+        { "id": "q3b", "text": "ある程度できている", "score": 2 },
+        { "id": "q3c", "text": "あまりできていない", "score": 3 },
+        { "id": "q3d", "text": "全くできていない", "score": 4 }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "最近イライラすることが多いですか？",
+      "choices": [
+        { "id": "q4a", "text": "ほとんどない", "score": 1 },
+        { "id": "q4b", "text": "たまにある", "score": 2 },
+        { "id": "q4c", "text": "よくある", "score": 3 },
+        { "id": "q4d", "text": "常にイライラしている", "score": 4 }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "体調はいかがですか？",
+      "choices": [
+        { "id": "q5a", "text": "とても良い", "score": 1 },
+        { "id": "q5b", "text": "普通", "score": 2 },
+        { "id": "q5c", "text": "少し不調", "score": 3 },
+        { "id": "q5d", "text": "かなり不調", "score": 4 }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "A",
+      "title": "ストレスほぼなし",
+      "range": [5, 8],
+      "description": "あなたのストレスレベルはとても低い状態です。心身ともに健康的な生活を送れています。この調子を維持しましょう！",
+      "image": "",
+      "tags": ["リラックス", "健康", "好調"]
+    },
+    {
+      "id": "B",
+      "title": "ストレス軽度",
+      "range": [9, 12],
+      "description": "少しストレスを感じていますが、まだコントロールできる範囲です。適度な休息と趣味の時間を確保しましょう。",
+      "image": "",
+      "tags": ["軽度", "注意", "休息"]
+    },
+    {
+      "id": "C",
+      "title": "ストレスやや高め",
+      "range": [13, 16],
+      "description": "ストレスが溜まってきています。意識的にリラックスする時間を作り、信頼できる人に相談してみましょう。",
+      "image": "",
+      "tags": ["要注意", "リフレッシュ", "相談"]
+    },
+    {
+      "id": "D",
+      "title": "ストレス高い",
+      "range": [17, 20],
+      "description": "かなりストレスが高い状態です。無理をせず、しっかり休息を取ることが大切です。必要であれば専門家への相談も検討してみてください。",
+      "image": "",
+      "tags": ["高ストレス", "休息必須", "専門家相談"]
+    }
+  ]
+}

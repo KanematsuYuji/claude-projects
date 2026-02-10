@@ -40,17 +40,19 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 16px 32px;
+      padding: 16px 24px;
       border: none;
       background: transparent;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: #888;
       cursor: pointer;
       border-bottom: 3px solid transparent;
       transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
     }
     .tab-btn:hover {
       color: #4f46e5;
@@ -96,6 +98,17 @@
       color: #555;
       margin-bottom: 20px;
     }
+    .section-badge {
+      display: inline-block;
+      background: #4f46e5;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     /* --- Footer --- */
     .preview-footer {
@@ -116,14 +129,15 @@
 
   <!-- ===== Tabs ===== -->
   <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="tab-personality">性格タイプ診断（4択）</button>
-    <button class="tab-btn" data-tab="tab-yesno">インドア度チェック（Yes/No）</button>
+    <button class="tab-btn active" data-tab="tab-personality">性格タイプ（highest）</button>
+    <button class="tab-btn" data-tab="tab-yesno">インドア度（highest）</button>
+    <button class="tab-btn" data-tab="tab-stress">ストレス度（range）</button>
   </nav>
 
   <!-- ===== Tab 1: 性格タイプ診断 ===== -->
   <div class="tab-panel active" id="tab-personality">
-    <p class="section-label">DEMO 1</p>
-    <p class="section-title">4つの質問 × 4択 → 4つの結果パターン</p>
+    <p class="section-label">DEMO 1 <span class="section-badge">scoringMode: highest</span></p>
+    <p class="section-title">4つの質問 &times; 4択 &rarr; 4つの結果パターン（カテゴリ別最高スコア）</p>
     <div class="preview-card">
       <div id="diagnosis-personality"></div>
     </div>
@@ -131,10 +145,19 @@
 
   <!-- ===== Tab 2: Yes/No 診断 ===== -->
   <div class="tab-panel" id="tab-yesno">
-    <p class="section-label">DEMO 2</p>
-    <p class="section-title">5つの質問 × Yes/No 2択 → 2つの結果パターン</p>
+    <p class="section-label">DEMO 2 <span class="section-badge">scoringMode: highest</span></p>
+    <p class="section-title">5つの質問 &times; Yes/No 2択 &rarr; 2つの結果パターン</p>
     <div class="preview-card">
       <div id="diagnosis-yesno"></div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 3: ストレス度診断 (range mode) ===== -->
+  <div class="tab-panel" id="tab-stress">
+    <p class="section-label">DEMO 3 <span class="section-badge">scoringMode: range</span></p>
+    <p class="section-title">5つの質問 &times; 4択 &rarr; 合計スコアの範囲で4つの結果に振り分け</p>
+    <div class="preview-card">
+      <div id="diagnosis-stress"></div>
     </div>
   </div>
 
@@ -149,7 +172,8 @@
   <script>
     // ---------- Inline JSON Data ----------
 
-    const personalityData = {
+    // Demo 1: highest mode (category scores)
+    var personalityData = {
       "meta": {
         "id": "personality-diagnosis",
         "title": "あなたのタイプ診断",
@@ -157,6 +181,7 @@
         "version": "1.0.0"
       },
       "settings": {
+        "scoringMode": "highest",
         "choiceStyle": "grid",
         "showProgress": true,
         "showQuestionNumber": true,
@@ -165,8 +190,7 @@
       },
       "questions": [
         {
-          "id": "q1",
-          "text": "休日の過ごし方で一番好きなのは？",
+          "id": "q1", "text": "休日の過ごし方で一番好きなのは？",
           "choices": [
             { "id": "q1a", "text": "友人と外出する", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
             { "id": "q1b", "text": "家でゆっくり読書", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
@@ -175,8 +199,7 @@
           ]
         },
         {
-          "id": "q2",
-          "text": "グループでの役割は？",
+          "id": "q2", "text": "グループでの役割は？",
           "choices": [
             { "id": "q2a", "text": "リーダーとしてまとめる", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
             { "id": "q2b", "text": "サポート役に回る", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
@@ -185,8 +208,7 @@
           ]
         },
         {
-          "id": "q3",
-          "text": "ストレス発散法は？",
+          "id": "q3", "text": "ストレス発散法は？",
           "choices": [
             { "id": "q3a", "text": "人と話す", "scores": { "A": 3, "B": 0, "C": 1, "D": 0 } },
             { "id": "q3b", "text": "自然の中でリラックス", "scores": { "A": 0, "B": 3, "C": 1, "D": 0 } },
@@ -195,8 +217,7 @@
           ]
         },
         {
-          "id": "q4",
-          "text": "仕事で大切にしていることは？",
+          "id": "q4", "text": "仕事で大切にしていることは？",
           "choices": [
             { "id": "q4a", "text": "チームワーク", "scores": { "A": 3, "B": 1, "C": 0, "D": 0 } },
             { "id": "q4b", "text": "安定と確実さ", "scores": { "A": 0, "B": 3, "C": 0, "D": 1 } },
@@ -206,38 +227,15 @@
         }
       ],
       "results": [
-        {
-          "id": "A",
-          "title": "社交派リーダータイプ",
-          "description": "あなたは人と関わることが好きで、自然とリーダーシップを発揮するタイプです。コミュニケーション能力が高く、チームを引っ張る力があります。",
-          "image": "",
-          "tags": ["社交的", "リーダー", "コミュニケーション"]
-        },
-        {
-          "id": "B",
-          "title": "穏やかサポータータイプ",
-          "description": "あなたは穏やかで思いやりがあり、周囲を支えることが得意なタイプです。安定感があり、信頼される存在です。",
-          "image": "",
-          "tags": ["穏やか", "サポーター", "信頼"]
-        },
-        {
-          "id": "C",
-          "title": "冒険チャレンジャータイプ",
-          "description": "あなたは好奇心旺盛で、新しいことに挑戦するのが大好きなタイプです。行動力があり、周囲にエネルギーを与えます。",
-          "image": "",
-          "tags": ["冒険", "チャレンジャー", "行動力"]
-        },
-        {
-          "id": "D",
-          "title": "職人クリエイタータイプ",
-          "description": "あなたは一つのことに深く集中し、高い専門性を発揮するタイプです。独自の世界観を持ち、クリエイティブな才能があります。",
-          "image": "",
-          "tags": ["職人", "クリエイター", "専門性"]
-        }
+        { "id": "A", "title": "社交派リーダータイプ", "description": "あなたは人と関わることが好きで、自然とリーダーシップを発揮するタイプです。コミュニケーション能力が高く、チームを引っ張る力があります。", "image": "", "tags": ["社交的", "リーダー", "コミュニケーション"] },
+        { "id": "B", "title": "穏やかサポータータイプ", "description": "あなたは穏やかで思いやりがあり、周囲を支えることが得意なタイプです。安定感があり、信頼される存在です。", "image": "", "tags": ["穏やか", "サポーター", "信頼"] },
+        { "id": "C", "title": "冒険チャレンジャータイプ", "description": "あなたは好奇心旺盛で、新しいことに挑戦するのが大好きなタイプです。行動力があり、周囲にエネルギーを与えます。", "image": "", "tags": ["冒険", "チャレンジャー", "行動力"] },
+        { "id": "D", "title": "職人クリエイタータイプ", "description": "あなたは一つのことに深く集中し、高い専門性を発揮するタイプです。独自の世界観を持ち、クリエイティブな才能があります。", "image": "", "tags": ["職人", "クリエイター", "専門性"] }
       ]
     };
 
-    const yesnoData = {
+    // Demo 2: highest mode (yes/no)
+    var yesnoData = {
       "meta": {
         "id": "yesno-diagnosis",
         "title": "あなたのインドア度チェック",
@@ -245,6 +243,7 @@
         "version": "1.0.0"
       },
       "settings": {
+        "scoringMode": "highest",
         "choiceStyle": "horizontal",
         "showProgress": true,
         "showQuestionNumber": true,
@@ -252,70 +251,95 @@
         "resultShareEnabled": false
       },
       "questions": [
-        {
-          "id": "q1",
-          "text": "週末は家にいることが多い",
-          "choices": [
-            { "id": "q1a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
-            { "id": "q1b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
-          ]
-        },
-        {
-          "id": "q2",
-          "text": "ネットショッピングをよく使う",
-          "choices": [
-            { "id": "q2a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
-            { "id": "q2b", "text": "No", "scores": { "indoor": 0, "outdoor": 2 } }
-          ]
-        },
-        {
-          "id": "q3",
-          "text": "アウトドアの趣味がある",
-          "choices": [
-            { "id": "q3a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
-            { "id": "q3b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
-          ]
-        },
-        {
-          "id": "q4",
-          "text": "動画配信サービスに加入している",
-          "choices": [
-            { "id": "q4a", "text": "Yes", "scores": { "indoor": 1, "outdoor": 0 } },
-            { "id": "q4b", "text": "No", "scores": { "indoor": 0, "outdoor": 1 } }
-          ]
-        },
-        {
-          "id": "q5",
-          "text": "旅行の計画を立てるのが好き",
-          "choices": [
-            { "id": "q5a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
-            { "id": "q5b", "text": "No", "scores": { "indoor": 2, "outdoor": 0 } }
-          ]
-        }
+        { "id": "q1", "text": "週末は家にいることが多い", "choices": [
+          { "id": "q1a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+          { "id": "q1b", "text": "No",  "scores": { "indoor": 0, "outdoor": 2 } }
+        ]},
+        { "id": "q2", "text": "ネットショッピングをよく使う", "choices": [
+          { "id": "q2a", "text": "Yes", "scores": { "indoor": 2, "outdoor": 0 } },
+          { "id": "q2b", "text": "No",  "scores": { "indoor": 0, "outdoor": 2 } }
+        ]},
+        { "id": "q3", "text": "アウトドアの趣味がある", "choices": [
+          { "id": "q3a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+          { "id": "q3b", "text": "No",  "scores": { "indoor": 2, "outdoor": 0 } }
+        ]},
+        { "id": "q4", "text": "動画配信サービスに加入している", "choices": [
+          { "id": "q4a", "text": "Yes", "scores": { "indoor": 1, "outdoor": 0 } },
+          { "id": "q4b", "text": "No",  "scores": { "indoor": 0, "outdoor": 1 } }
+        ]},
+        { "id": "q5", "text": "旅行の計画を立てるのが好き", "choices": [
+          { "id": "q5a", "text": "Yes", "scores": { "indoor": 0, "outdoor": 2 } },
+          { "id": "q5b", "text": "No",  "scores": { "indoor": 2, "outdoor": 0 } }
+        ]}
       ],
       "results": [
-        {
-          "id": "indoor",
-          "title": "インドア派",
-          "description": "あなたは快適な室内で過ごすことが好きなインドア派です。読書やゲーム、映画鑑賞など、家の中でも充実した時間を過ごせるタイプです。",
-          "image": "",
-          "tags": ["インドア", "家が好き"]
-        },
-        {
-          "id": "outdoor",
-          "title": "アウトドア派",
-          "description": "あなたは外に出て活動するのが好きなアウトドア派です。自然や街を楽しみ、アクティブに過ごすことでエネルギーを得るタイプです。",
-          "image": "",
-          "tags": ["アウトドア", "活動的"]
-        }
+        { "id": "indoor",  "title": "インドア派",  "description": "あなたは快適な室内で過ごすことが好きなインドア派です。読書やゲーム、映画鑑賞など、家の中でも充実した時間を過ごせるタイプです。", "image": "", "tags": ["インドア", "家が好き"] },
+        { "id": "outdoor", "title": "アウトドア派", "description": "あなたは外に出て活動するのが好きなアウトドア派です。自然や街を楽しみ、アクティブに過ごすことでエネルギーを得るタイプです。", "image": "", "tags": ["アウトドア", "活動的"] }
+      ]
+    };
+
+    // Demo 3: range mode (total score → range)
+    var stressData = {
+      "meta": {
+        "id": "stress-level-diagnosis",
+        "title": "あなたのストレス度チェック",
+        "description": "5つの質問に答えて、今のストレスレベルを診断しましょう。",
+        "version": "1.0.0"
+      },
+      "settings": {
+        "scoringMode": "range",
+        "choiceStyle": "grid",
+        "showProgress": true,
+        "showQuestionNumber": true,
+        "animation": "fade",
+        "resultShareEnabled": false
+      },
+      "questions": [
+        { "id": "q1", "text": "最近、よく眠れていますか？", "choices": [
+          { "id": "q1a", "text": "ぐっすり眠れる",     "score": 1 },
+          { "id": "q1b", "text": "まあまあ眠れる",     "score": 2 },
+          { "id": "q1c", "text": "あまり眠れない",     "score": 3 },
+          { "id": "q1d", "text": "ほとんど眠れない",   "score": 4 }
+        ]},
+        { "id": "q2", "text": "仕事や学校のことを考えるとどう感じますか？", "choices": [
+          { "id": "q2a", "text": "楽しみ",           "score": 1 },
+          { "id": "q2b", "text": "特に何も感じない",   "score": 2 },
+          { "id": "q2c", "text": "少し憂うつ",        "score": 3 },
+          { "id": "q2d", "text": "行きたくない",       "score": 4 }
+        ]},
+        { "id": "q3", "text": "休日にリフレッシュできていますか？", "choices": [
+          { "id": "q3a", "text": "十分できている",     "score": 1 },
+          { "id": "q3b", "text": "ある程度できている",  "score": 2 },
+          { "id": "q3c", "text": "あまりできていない",  "score": 3 },
+          { "id": "q3d", "text": "全くできていない",    "score": 4 }
+        ]},
+        { "id": "q4", "text": "最近イライラすることが多いですか？", "choices": [
+          { "id": "q4a", "text": "ほとんどない",       "score": 1 },
+          { "id": "q4b", "text": "たまにある",         "score": 2 },
+          { "id": "q4c", "text": "よくある",           "score": 3 },
+          { "id": "q4d", "text": "常にイライラしている", "score": 4 }
+        ]},
+        { "id": "q5", "text": "体調はいかがですか？", "choices": [
+          { "id": "q5a", "text": "とても良い",   "score": 1 },
+          { "id": "q5b", "text": "普通",         "score": 2 },
+          { "id": "q5c", "text": "少し不調",     "score": 3 },
+          { "id": "q5d", "text": "かなり不調",   "score": 4 }
+        ]}
+      ],
+      "results": [
+        { "id": "A", "title": "ストレスほぼなし",   "range": [5, 8],   "description": "あなたのストレスレベルはとても低い状態です。心身ともに健康的な生活を送れています。この調子を維持しましょう！", "image": "", "tags": ["リラックス", "健康", "好調"] },
+        { "id": "B", "title": "ストレス軽度",       "range": [9, 12],  "description": "少しストレスを感じていますが、まだコントロールできる範囲です。適度な休息と趣味の時間を確保しましょう。", "image": "", "tags": ["軽度", "注意", "休息"] },
+        { "id": "C", "title": "ストレスやや高め",   "range": [13, 16], "description": "ストレスが溜まってきています。意識的にリラックスする時間を作り、信頼できる人に相談してみましょう。", "image": "", "tags": ["要注意", "リフレッシュ", "相談"] },
+        { "id": "D", "title": "ストレス高い",       "range": [17, 20], "description": "かなりストレスが高い状態です。無理をせず、しっかり休息を取ることが大切です。必要であれば専門家への相談も検討してみてください。", "image": "", "tags": ["高ストレス", "休息必須", "専門家相談"] }
       ]
     };
   </script>
 
-  <!-- DiagnosticModule engine (inline) -->
+  <!-- DiagnosticModule engine (inline, range + highest dual mode) -->
   <script>
     class DiagnosticModule {
-      constructor(container, data, options = {}) {
+      constructor(container, data, options) {
+        options = options || {};
         this.container =
           typeof container === 'string'
             ? document.querySelector(container)
@@ -331,6 +355,7 @@
         this.options = options;
         this.currentIndex = 0;
         this.scores = {};
+        this.totalScore = 0;
         this.answers = [];
         this._initScores();
         this._injectStyles();
@@ -342,17 +367,8 @@
         showQuestionNumber: true,
         animation: 'fade',
         resultShareEnabled: false,
+        scoringMode: 'highest',
       };
-
-      static loadFromJSON(container, jsonPath, options = {}) {
-        return fetch(jsonPath)
-          .then(function(res) { return res.json(); })
-          .then(function(data) {
-            var instance = new DiagnosticModule(container, data, options);
-            instance.start();
-            return instance;
-          });
-      }
 
       start() {
         this.currentIndex = 0;
@@ -362,25 +378,51 @@
       }
 
       reset() { this.start(); }
-      getScores() { return Object.assign({}, this.scores); }
-      onResult(callback) { this._onResultCallback = callback; }
 
-      _initScores() {
-        this.scores = {};
-        var self = this;
-        this.results.forEach(function(r) { self.scores[r.id] = 0; });
+      getScores() {
+        if (this.settings.scoringMode === 'range') {
+          return { total: this.totalScore };
+        }
+        return Object.assign({}, this.scores);
       }
 
-      _addScores(choiceScores) {
-        var self = this;
-        Object.keys(choiceScores).forEach(function(key) {
-          if (self.scores[key] !== undefined) {
-            self.scores[key] += choiceScores[key];
+      onResult(callback) { this._onResultCallback = callback; }
+
+      // --- Score logic ---
+
+      _initScores() {
+        if (this.settings.scoringMode === 'range') {
+          this.totalScore = 0;
+        } else {
+          this.scores = {};
+          var self = this;
+          this.results.forEach(function(r) { self.scores[r.id] = 0; });
+        }
+      }
+
+      _addScores(value) {
+        if (this.settings.scoringMode === 'range') {
+          this.totalScore += (typeof value === 'number' ? value : 0);
+        } else {
+          var self = this;
+          if (value && typeof value === 'object') {
+            Object.keys(value).forEach(function(key) {
+              if (self.scores[key] !== undefined) {
+                self.scores[key] += value[key];
+              }
+            });
           }
-        });
+        }
       }
 
       _getTopResult() {
+        if (this.settings.scoringMode === 'range') {
+          return this._getRangeResult();
+        }
+        return this._getHighestResult();
+      }
+
+      _getHighestResult() {
         var maxScore = -Infinity;
         var topId = this.results[0].id;
         var self = this;
@@ -392,6 +434,19 @@
         });
         return this.results.find(function(r) { return r.id === topId; });
       }
+
+      _getRangeResult() {
+        var total = this.totalScore;
+        for (var i = 0; i < this.results.length; i++) {
+          var r = this.results[i];
+          if (r.range && total >= r.range[0] && total <= r.range[1]) {
+            return r;
+          }
+        }
+        return this.results[this.results.length - 1];
+      }
+
+      // --- DOM helpers ---
 
       _el(tag, className, html) {
         var el = document.createElement(tag);
@@ -418,6 +473,8 @@
           });
         }
       }
+
+      // --- Screens ---
 
       _renderStart() {
         this._clear();
@@ -473,7 +530,7 @@
 
       _handleAnswer(choice) {
         this.answers.push({ questionId: this.questions[this.currentIndex].id, choiceId: choice.id });
-        this._addScores(choice.scores);
+        this._addScores(this.settings.scoringMode === 'range' ? choice.score : choice.scores);
         this.currentIndex++;
         if (this.currentIndex < this.questions.length) {
           this._renderQuestion();
@@ -503,9 +560,10 @@
         if (result.tags && result.tags.length) {
           var tagsWrap = this._el('div', 'dmod-result__tags');
           result.tags.forEach(function(t) {
-            tagsWrap.appendChild(document.createElement('span'));
-            tagsWrap.lastChild.className = 'dmod-tag';
-            tagsWrap.lastChild.textContent = '#' + t;
+            var span = document.createElement('span');
+            span.className = 'dmod-tag';
+            span.textContent = '#' + t;
+            tagsWrap.appendChild(span);
           });
           inner.appendChild(tagsWrap);
         }
@@ -563,7 +621,6 @@
 @media(max-width:480px){.dmod-wrap{padding:20px 16px}.dmod-title{font-size:1.3rem}.dmod-question{font-size:1.05rem}.dmod-choices--grid{grid-template-columns:1fr}.dmod-result__title{font-size:1.4rem}}\
 ';
     }
-
   </script>
 
   <!-- Initialization -->
@@ -578,12 +635,20 @@
       });
     });
 
-    // --- Launch diagnoses with inline data (no fetch needed) ---
+    // --- Demo 1: highest mode ---
     var diag1 = new DiagnosticModule('#diagnosis-personality', personalityData);
     diag1.start();
 
+    // --- Demo 2: highest mode (yes/no) ---
     var diag2 = new DiagnosticModule('#diagnosis-yesno', yesnoData);
     diag2.start();
+
+    // --- Demo 3: range mode ---
+    var diag3 = new DiagnosticModule('#diagnosis-stress', stressData);
+    diag3.start();
+    diag3.onResult(function(result, scores) {
+      console.log('[ストレス診断] 合計スコア:', scores.total, '→ 結果:', result.title);
+    });
   </script>
 
 </body>
